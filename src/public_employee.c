@@ -16,13 +16,13 @@ void initialize_public_employee(PublicEmployee *e) {
 
 
 void print_public_employee(const PublicEmployee *e) {
-    printf("=========== Public Employee ===========\n");
-    printf("ID:              %d\n", e->id);
-    printf("Name:            %s\n", e->name);
-    printf("Position:        %s\n", e->position);
-    printf("Department:      %s\n", e->department);
-    printf("Gross Salary:    %.2f\n", e->gross_salary);
-    printf("Discounts:       %.2f\n", e->discounts);
-    printf("Net Salary:      %.2f\n", e->net_salary);
+    printf("=========== Servidor ===========\n");
+    printf("Matrícula:       %d\n", e->id);
+    printf("Nome:            %s\n", e->name);
+    printf("Cargo:           %s\n", e->position);
+    printf("Lotação:         %s\n", e->department);
+    printf("Salário Bruto:   %.2f\n", e->gross_salary);
+    printf("Descontos:       %.2f\n", e->discounts);
+    printf("Salário Líquido: %.2f\n", e->net_salary);
     printf("=======================================\n\n");
 }

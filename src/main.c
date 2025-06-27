@@ -2,33 +2,43 @@
 #include <string.h>
 #include "csv.h"
 #include "preprocess.h"
+#include "json_profile.h"
 
 int main(int argc, char *argv[]) {
-    if (argc < 2 || argc > 3) {
-        fprintf(stderr, "Usage: %s <input_csv> [output_bin]\n", argv[0]);
+    if (argc < 3 || argc > 4) {
+        fprintf(stderr, "Uso: %s <input_csv> <perfil_json> [output_bin]\n", argv[0]);
         return 1;
     }
-    if (preprocess(argv) != 0) {
-        fprintf(stderr, "Error preprocessing file.\n");
+    
+    printf("Carregando perfil JSON: %s\n", argv[2]);
+    Profile *profile = load_profile(argv[2]);
+    if (!profile) {
+        fprintf(stderr, "Erro ao carregar perfil JSON.\n");
+        return 1;
+    }
+    char filename[256];
+    printf("Usando encoding: %s\n", profile->aliases_encoding[0]);
+    
+    if (!preprocess(argv[1], filename, profile->aliases_encoding[0])) {
+        fprintf(stderr, "Erro no pré-processamento do CSV.\n");
         return 1;
     }
 
-    char *input_file = argv[1];
-    input_file[strlen(input_file) - 4] = '\0'; // remove .csv
-    input_file = strcat(input_file, "_preprocessed.csv");
 
-    const char *output_file = (argc == 3) ? argv[2] : "bin/public_employees.dat";
+    const char *profile_json = argv[2];
+    const char *output_file = (argc == 4) ? argv[3] : "bin/public_employees.dat";
 
-    printf("Reading CSV: %s\n", input_file);
+    printf("Arquivo convertido com sucesso.\n");
+    printf("Reading CSV: %s\n", filename);
     printf("Saving binary to: %s\n", output_file);
 
-    int result = read_csv_and_print(input_file); // substituiremos por função que salva binário
+    int result = read_csv_and_print(filename, profile_json);
     if (result != 0) {
-        fprintf(stderr, "Error processing file.\n");
+        fprintf(stderr, "Erro ao processar o arquivo.\n");
         return 1;
     }
 
-    // Futuramente: save_to_binary(employees, output_file);
+    // Futuro: save_to_binary(employees, output_file);
 
     return 0;
 }

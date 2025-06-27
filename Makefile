@@ -6,27 +6,26 @@ BIN = $(OBJ_DIR)/app
 
 # Lista de arquivos .c no diretório src
 SRCS = $(wildcard $(SRC_DIR)/*.c)
-
-# Gera os nomes dos arquivos .o correspondentes no diretório build
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
+# Regra padrão
+.PHONY: clean $(OBJ_DIR) $(BIN)
 
-# Regra de ligação final
+# Regra de linkagem final (agora com -lm!)
 $(BIN): $(OBJS)
-	$(CC) $(OBJS) -o $(BIN)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm
 
-# Regra para compilar arquivos .c em .o
+# Compilação dos .o
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Limpeza dos binários e objetos
+# Limpeza
 clean:
 	rm -rf $(OBJ_DIR)
 
+# Execução automática com arquivo de teste
 run:
-	./$(BIN) ./tests/test.csv
-.PHONY: all clean
+	./$(BIN) ./tests/test.csv ./profiles/gravatai.json
 
-# Regra padrão
-all: clean $(BIN) run
+all: clean $(OBJ_DIR) $(BIN) run

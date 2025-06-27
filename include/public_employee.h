@@ -8,12 +8,14 @@ typedef struct {
     int id;
     char position[MAX_FIELD_LEN];
     char department[MAX_FIELD_LEN];
-    float gross_salary;
-    float discounts;
-    float net_salary;
+    double gross_salary;
+    double discounts;
+    double net_salary;
 } PublicEmployee;
 
-void print_public_employee(const PublicEmployee *e);
-void initialize_public_employee(PublicEmployee *e);
 
-#endif
+
+void initialize_public_employee(PublicEmployee *e);
+void print_public_employee(const PublicEmployee *e);
+
+#endif // PUBLIC_EMPLOYEE_H

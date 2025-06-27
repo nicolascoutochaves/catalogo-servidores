@@ -1,0 +1,11 @@
+{
+    "nome": ["Nome", "Nome Funcionário", "Nome Funcion?rio"],
+    "matricula": ["Funcionário", "Matrícula", "Funcion?rio"],
+    "cargo": ["Cargo"],
+    "departamento": ["Centro Custo", "Setor"],
+    "salario_bruto": ["Salário Bruto", "Sal?rio Bruto"],
+    "descontos": ["Descontos"],
+    "salario_liquido": ["Salário Líquido", "Sal?rio L?quido"],
+    "usa_liquido_direto": true,
+    "encoding": ["UTF-8"]
+}

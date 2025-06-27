@@ -1,0 +1,17 @@
+{
+  "usa_liquido_direto": true,
+  "nome": ["Nome"],
+  "matricula": ["Matr?cula"],
+  "cargo": ["Cargo"],
+  "departamento": ["?rg?o de exerc?cio", "Setor"],
+  "salario_bruto": ["Remunera??o b?sica bruta"],
+  "descontos": [
+    "Imposto de renda retido na fonte",
+    "Previd?ncia oficial",
+    "Seguro obrigat?rio",
+    "Abate teto",
+    "Demais dedu??es"
+  ],
+  "salario_liquido": ["Remunera??o ap?s dedu??es obrigat?rias"],
+  "encoding": ["UTF-8"]
+}

@@ -1,0 +1,11 @@
+{
+  "usa_liquido_direto": true,
+  "nome": ["NOME"],
+  "matricula": [],
+  "cargo": ["CARGO"],
+  "departamento": ["ORG?O"],
+  "salario_bruto": ["REMUNERA??O DO M?S"],
+  "descontos": [],
+  "salario_liquido": ["TOTAL LIQU?DO (R$)"],
+  "encoding": ["ISO-8859-1"]
+}
