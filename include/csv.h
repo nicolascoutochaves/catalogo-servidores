@@ -13,11 +13,8 @@ extern char line[MAX_LINE];
 extern char fields[MAX_FIELDS][MAX_FIELD_LEN];
 
 
-
-
-int map_header_index_any_list(const char *header_line, char **aliases, int alias_count);
-
-void parse_csv_line(char *line, char fields[MAX_FIELDS][MAX_FIELD_LEN]);
+void read_binary_file_and_print(const char* filename);
 int read_csv_and_print(const char *filename, const char *profile_path);
+int process_csv(const char* filename, const char* profile_path, const char* output_path);
 
 #endif // CSV_H

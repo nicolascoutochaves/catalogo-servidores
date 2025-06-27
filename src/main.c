@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <time.h> // ⏱️
+#include <time.h> 
 #include "csv.h"
 #include "preprocess.h"
 #include "json_profile.h"
@@ -42,23 +42,25 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
-    printf("✔️  Preprocessing done in %.2f ms\n", elapsed_ms(t1, t2));
+    printf("✔️  Preprocessing done in %.2f ms\n\n", elapsed_ms(t1, t2));
 
 
     const char *output_file = (argc == 4) ? argv[3] : "bin/public_employees.dat";
 
-    printf("Reading CSV: %s\n", filename);
-    printf("Saving binary to: %s\n", output_file);
-
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    int result = read_csv_and_print(filename, argv[2]);
-    clock_gettime(CLOCK_MONOTONIC, &t2);
-    printf("✔️  CSV processed in %.2f ms\n", elapsed_ms(t1, t2));
-
-    if (result != 0) {
-        fprintf(stderr, "Error processing file.\n");
+    if(process_csv(filename, argv[2], output_file) != 0) {
+        fprintf(stderr, "Error processing CSV file.\n");
+        free_profile(profile);
         return 1;
     }
+    clock_gettime(CLOCK_MONOTONIC, &t2);
+    printf("\n✔️  CSV processed in %.2f ms\n", elapsed_ms(t1, t2));
+
+    printf("Reading binary file and printing employees:\n");
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    read_binary_file_and_print(output_file);
+    clock_gettime(CLOCK_MONOTONIC, &t2);
+    printf("✔️  Binary file read in %.2f ms\n", elapsed_ms(t1, t2));
 
     clock_gettime(CLOCK_MONOTONIC, &total_end);
     printf("✅ Total execution time: %.2f ms\n", elapsed_ms(total_start, total_end));
