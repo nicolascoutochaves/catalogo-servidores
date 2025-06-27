@@ -2,10 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+
 #include <unistd.h>  // para ftruncate
 #include <fcntl.h>   // para fileno
+
 #include "preprocess.h"
-#include "cJSON.h"  // para json_profile.h
+#include "cJSON.h" 
 
 #define LINE_BUF 8192
 
@@ -13,9 +16,9 @@ int file_exists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file) {
         fclose(file);
-        return 1;  // arquivo existe
+        return 1;
     }
-    return 0;  // arquivo não existe
+    return 0; 
 }
 
 
@@ -23,7 +26,7 @@ int copy_file_fopen(const char* src, const char* dst) {
     FILE* fin = fopen(src, "rb");
     FILE* fout = fopen(dst, "wb");
     if (!fin || !fout) {
-        perror("Erro ao copiar arquivo");
+        perror("Error copying file");
         return 0;
     }
 
@@ -41,7 +44,6 @@ int copy_file_fopen(const char* src, const char* dst) {
 void sanitize_line(const char* src, char* dst, size_t maxlen, const char* encoding) {
     size_t i = 0, j = 0;
 
-    puts("sanitize_line");
     int is_utf8 = (strcmp(encoding, "UTF-8") == 0 || strcmp(encoding, "utf-8") == 0);
 
     while (src[i] && j < maxlen - 1) {
@@ -80,20 +82,20 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
     strcat(output_file, "_preprocessed.csv");
 
     if (file_exists(output_file)) {
-        printf("Arquivo pré-processado já existe. Pulando criação...\n");
+        printf("Preprocessed file already exists. Skipping creation...\n");
         return 1;
     }
 
     // 1. Copiar arquivo inteiro
     if (!copy_file_fopen(input_file, output_file)) {
-        fprintf(stderr, "Erro ao copiar arquivo.\n");
+        fprintf(stderr, "Error copying file.\n");
         return 0;
     }
 
     // 2. Reabrir a cópia com leitura/escrita binária
     FILE* f = fopen(output_file, "r+b");
     if (!f) {
-        perror("Erro ao reabrir para edição");
+        perror("Error reopening file for editing");
         return 0;
     }
 
@@ -104,7 +106,7 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
 
     while (fgets(linha, sizeof(linha), f)) {
         if (strchr(linha, ';')) {
-            puts("caracter de separação encontrado");
+            puts("Separating character found");
             fim = ftell(f); // posição após a linha
             break;
         }
@@ -112,7 +114,7 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
     }
 
     if (fim == 0) {
-        fprintf(stderr, "Cabeçalho não encontrado durante preprocessamento.\n");
+        fprintf(stderr, "Header not found during preprocessing.\n");
         fclose(f);
         return 0;
     }
@@ -131,7 +133,7 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
     size_t tail_size = end - after_header_pos;
     char* tail = malloc(tail_size);
     if (!tail) {
-        perror("Erro de memória");
+        perror("Memory allocation error");
         fclose(f);
         return 0;
     }
@@ -149,7 +151,7 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
     fflush(f);
     int fd = fileno(f);
     if (ftruncate(fd, final_size) != 0) {
-        perror("Erro ao truncar arquivo");
+        perror("Error truncating file");
         free(tail);
         fclose(f);
         return 0;
@@ -157,7 +159,7 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
 
     free(tail);
     fclose(f);
-
-    printf("Cabeçalho sanitizado com sucesso: %s\n", output_file);
+    printf("File converted successfully: ");
+    printf("%s\n", output_file);
     return 1;
 }

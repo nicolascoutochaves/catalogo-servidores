@@ -1,44 +1,67 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h> // ⏱️
 #include "csv.h"
 #include "preprocess.h"
 #include "json_profile.h"
 
+// função utilitária
+double elapsed_ms(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) * 1000.0 +
+           (end.tv_nsec - start.tv_nsec) / 1e6;
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 3 || argc > 4) {
-        fprintf(stderr, "Uso: %s <input_csv> <perfil_json> [output_bin]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_csv> <profile_json> [output_bin]\n", argv[0]);
         return 1;
     }
-    
-    printf("Carregando perfil JSON: %s\n", argv[2]);
+
+    struct timespec total_start, total_end;
+    clock_gettime(CLOCK_MONOTONIC, &total_start);
+
+    struct timespec t1, t2;
+
+    printf("Loading profile: %s\n", argv[2]);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
     Profile *profile = load_profile(argv[2]);
+    clock_gettime(CLOCK_MONOTONIC, &t2);
+    printf("✔️  Profile loaded in %.2f ms\n", elapsed_ms(t1, t2));
+
     if (!profile) {
-        fprintf(stderr, "Erro ao carregar perfil JSON.\n");
+        fprintf(stderr, "Error loading JSON profile.\n");
         return 1;
     }
+
+    printf("Using encoding: %s\n", profile->aliases_encoding[0]);
+
     char filename[256];
-    printf("Usando encoding: %s\n", profile->aliases_encoding[0]);
-    
+    clock_gettime(CLOCK_MONOTONIC, &t1);
     if (!preprocess(argv[1], filename, profile->aliases_encoding[0])) {
-        fprintf(stderr, "Erro no pré-processamento do CSV.\n");
+        fprintf(stderr, "Error preprocessing CSV.\n");
         return 1;
     }
+    clock_gettime(CLOCK_MONOTONIC, &t2);
+    printf("✔️  Preprocessing done in %.2f ms\n", elapsed_ms(t1, t2));
 
 
-    const char *profile_json = argv[2];
     const char *output_file = (argc == 4) ? argv[3] : "bin/public_employees.dat";
 
-    printf("Arquivo convertido com sucesso.\n");
     printf("Reading CSV: %s\n", filename);
     printf("Saving binary to: %s\n", output_file);
 
-    int result = read_csv_and_print(filename, profile_json);
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    int result = read_csv_and_print(filename, argv[2]);
+    clock_gettime(CLOCK_MONOTONIC, &t2);
+    printf("✔️  CSV processed in %.2f ms\n", elapsed_ms(t1, t2));
+
     if (result != 0) {
-        fprintf(stderr, "Erro ao processar o arquivo.\n");
+        fprintf(stderr, "Error processing file.\n");
         return 1;
     }
 
-    // Futuro: save_to_binary(employees, output_file);
+    clock_gettime(CLOCK_MONOTONIC, &total_end);
+    printf("✅ Total execution time: %.2f ms\n", elapsed_ms(total_start, total_end));
 
     return 0;
 }

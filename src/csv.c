@@ -66,13 +66,13 @@ void parse_csv_line(char* line, char fields[MAX_FIELDS][MAX_FIELD_LEN]) {
 int read_csv_and_print(const char* filename, const char* profile_path) {
     Profile* p = load_profile(profile_path);
     if (!p) {
-        fprintf(stderr, "Erro ao carregar perfil JSON.\n");
+        fprintf(stderr, "Error loading profile.\n");
         return 1;
     }
 
     FILE* fp = fopen(filename, "r");
     if (!fp) {
-        fprintf(stderr, "Erro ao abrir arquivo CSV.\n");
+        fprintf(stderr, "Error opening CSV file.\n");
         free_profile(p);
         return 1;
     }
@@ -86,7 +86,7 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
     }
 
     if (feof(fp)) {
-        fprintf(stderr, "Cabeçalho não encontrado durante leitura do arquivo.\n");
+        fprintf(stderr, "Header not found during file reading.\n");
         fclose(fp);
         free_profile(p);
         return 1;
@@ -105,7 +105,7 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
 
     double *net_salaries = malloc(MAX_EMPLOYEES * sizeof(double));
     if (!net_salaries) {
-        fprintf(stderr, "Erro ao alocar memória para salários líquidos.\n");
+        fprintf(stderr, "Error allocating memory for net salaries.\n");
         fclose(fp);
         free_profile(p);
         return 1;
@@ -144,7 +144,7 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
             net_salaries[salary_count++] = e.net_salary;
         }
 
-        print_public_employee(&e);
+        //print_public_employee(&e);
     }
 
     fclose(fp);
@@ -164,7 +164,7 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
         printf("P(%.2f - %.2f) = %.2f%%\n", a, b, p_interval(&g, a, b) * 100);
     }
     else {
-        printf("Nenhum salário válido encontrado.\n");
+        printf("No valid data found.\n");
     }
 
     free_profile(p);
