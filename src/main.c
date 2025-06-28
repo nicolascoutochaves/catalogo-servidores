@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <string.h>
-#include <time.h> 
+#include <time.h>
+#ifdef _WIN32
+    #include <windows.h>
+#endif
+
 #include "csv.h"
 #include "preprocess.h"
 #include "json_profile.h"
+#include "sort_utils.h"
 
 // função utilitária
 double elapsed_ms(struct timespec start, struct timespec end) {
@@ -12,6 +17,12 @@ double elapsed_ms(struct timespec start, struct timespec end) {
 }
 
 int main(int argc, char *argv[]) {
+
+    #ifdef _WIN32
+        SetConsoleOutputCP(CP_UTF8);
+    #endif
+
+
     if (argc < 3 || argc > 4) {
         fprintf(stderr, "Usage: %s <input_csv> <profile_json> [output_bin]\n", argv[0]);
         return 1;

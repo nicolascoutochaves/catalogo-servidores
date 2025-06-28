@@ -1,31 +1,53 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
-SRC_DIR = src
-OBJ_DIR = build
-BIN = $(OBJ_DIR)/app
+# Compiler and flags
+CC      := gcc
+CFLAGS  := -Wall -Wextra -Iinclude
 
-# Lista de arquivos .c no diretório src
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+# Directories
+SRC_DIR := src
+OBJ_DIR := build
 
-# Regra padrão
-.PHONY: clean $(OBJ_DIR) $(BIN)
+# Detect OS
+ifeq ($(OS),Windows_NT)
+    EXEEXT    := .exe
+    RM        := rm -rf
+    LINK_LIBS := -lmingw32 -lmingwex
+    SEP       := /
+else
+    EXEEXT    :=
+    RM        := rm -rf
+    LINK_LIBS :=
+    SEP       := /
+endif
 
-# Regra de linkagem final (agora com -lm!)
+# Sources and objects
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+
+# Final binary
+BIN := $(OBJ_DIR)/app$(EXEEXT)
+
+.PHONY: all clean run
+
+# Default target
+all: $(BIN)
+
+# Link
 $(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm
+	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm $(LINK_LIBS)
 
-# Compilação dos .o
+# Compile objects
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Limpeza
+# Clean
 clean:
-	rm -rf $(OBJ_DIR)
+	$(RM) bin/*
 
-# Execução automática com arquivo de teste
-run:
-	./$(BIN) ./tests/test.csv ./profiles/gravatai.json
+reset:
+	$(RM) data/*preprocessed.csv bin/*
 
-all: clean $(OBJ_DIR) $(BIN) run
+# Run with sample arguments
+run: clean all
+	@echo "Running with sample CSV and profile..."
+	$(BIN) tests$(SEP)test.csv profiles$(SEP)gravatai.json
