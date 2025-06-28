@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.ced": "php",
+        "typeinfo": "c"
+    }
+}

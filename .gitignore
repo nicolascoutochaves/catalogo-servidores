@@ -4,6 +4,13 @@
 # CSV FILES
 *.csv
 
+#index files
+*.idx
+
+# Binary files
+*.dat
+*.bin
+
 # Object files
 *.o
 *.ko

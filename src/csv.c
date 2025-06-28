@@ -144,7 +144,7 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
         return 1;
     }
     int salary_count = 0; 
-
+    int i = 0;
     while (fgets(line, sizeof(line), fp) && salary_count < MAX_EMPLOYEES) {
         PublicEmployee e;
         initialize_public_employee(&e);
@@ -164,7 +164,6 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
             convert_brazilian_number(fields[idx_disc]);
             e.discounts = atof(fields[idx_disc]);
         }
-
         if (p->use_direct_net && idx_net >= 0 && strlen(fields[idx_net]) > 0) {
             convert_brazilian_number(fields[idx_net]);
                 e.net_salary = atof(fields[idx_net]);
@@ -176,8 +175,11 @@ int read_csv_and_print(const char* filename, const char* profile_path) {
          if (e.net_salary >= 0) {
             net_salaries[salary_count++] = e.net_salary;
         } 
-
+        if(e.id < 0){
+            e.id = i+1; // Atribui um ID sequencial se não estiver presente
+        }
         print_public_employee(&e);
+        i++;
     }
 
     fclose(fp);
@@ -264,6 +266,9 @@ int process_csv(const char* filename, const char* profile_path, const char* outp
         }
         else if (e.gross_salary >= 0 && e.discounts >= 0) {
             e.net_salary = e.gross_salary - e.discounts;
+        }
+        if(e.id < 0){
+            e.id = i+1; // Atribui um ID sequencial se não estiver presente
         }
 
         if(fwrite(&e, sizeof(PublicEmployee), 1, out_fp) != 1) {

@@ -9,11 +9,23 @@
 #include "preprocess.h"
 #include "json_profile.h"
 #include "sort_utils.h"
+#include "index.h"
+
 
 // função utilitária
 double elapsed_ms(struct timespec start, struct timespec end) {
     return (end.tv_sec - start.tv_sec) * 1000.0 +
            (end.tv_nsec - start.tv_nsec) / 1e6;
+}
+
+void remove_extension(char *filename) {
+    for (size_t i = 0; i < strlen(filename); i++) {
+        if (strcmp(&filename[i], ".csv") == 0 ||
+            strcmp(&filename[i], ".json") == 0 || strcmp(&filename[i], ".txt") == 0) {
+            filename[i] = '\0';
+            break;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -63,7 +75,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Error processing CSV file.\n");
         free_profile(profile);
         return 1;
-    }
+    } 
+    //read_csv_and_print(filename, argv[2]);
     clock_gettime(CLOCK_MONOTONIC, &t2);
     printf("\n✔️  CSV processed in %.2f ms\n", elapsed_ms(t1, t2));
 
@@ -76,5 +89,34 @@ int main(int argc, char *argv[]) {
     clock_gettime(CLOCK_MONOTONIC, &total_end);
     printf("✅ Total execution time: %.2f ms\n", elapsed_ms(total_start, total_end));
 
+    //sort_by_field("net_salary", 0, output_file, NULL);
+    char id_idx[MAX_FILENAME];
+    char name_idx[MAX_FILENAME];
+    char gross_idx[MAX_FILENAME];
+    char net_idx[MAX_FILENAME];
+
+
+
+    snprintf(id_idx, sizeof(id_idx), "index/%s", argv[1]);
+    snprintf(name_idx, sizeof(name_idx), "%s", id_idx);
+    snprintf(gross_idx, sizeof(gross_idx), "%s", id_idx);
+    snprintf(net_idx, sizeof(net_idx), "%s", id_idx);
+    remove_extension(id_idx); // Remove a extensão do nome do arquivo de entrada
+    remove_extension(name_idx);
+    remove_extension(gross_idx);
+    remove_extension(net_idx);
+    strcat(id_idx, "_id.idx"); // Adiciona sufixo _id.idx
+    strcat(name_idx, "_name.idx");
+    strcat(gross_idx, "_gross.idx");
+    strcat(net_idx, "_net.idx");
+    printf("%s\n%s\n%s\n%s\n", id_idx, name_idx, gross_idx, net_idx);
+
+    puts("Building indices...");
+    build_index("id", output_file, id_idx, 0);
+    build_index("name", output_file, name_idx, 0);
+    build_index("gross_salary", output_file, gross_idx, 0);
+    build_index("net_salary", output_file, net_idx, 0);
+
     return 0;
 }
+

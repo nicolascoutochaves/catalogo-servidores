@@ -8,7 +8,7 @@
 typedef union {
     int int_key;
     double float_key;
-    char str_key[64];
+    char str_key[128];
 } SortKey;
 
 typedef struct {
@@ -16,8 +16,7 @@ typedef struct {
     long offset;
 } IndexEntry;
 
-void sort_by_field(const char *field, int descending);
-
+void sort_by_field(const char *field, int descending, const char* filename, const char *index_filename);
 void radix_sort_int(IndexEntry *arr, size_t n);
 void radix_sort_int_desc(IndexEntry *arr, size_t n);
 void radix_sort_str(IndexEntry *arr, size_t n, size_t maxlen, int descending);
