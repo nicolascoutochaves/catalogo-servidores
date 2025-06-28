@@ -5,49 +5,49 @@ CFLAGS  := -Wall -Wextra -Iinclude
 # Directories
 SRC_DIR := src
 OBJ_DIR := build
+BIN_DIR := bin
 
 # Detect OS
 ifeq ($(OS),Windows_NT)
-    EXEEXT    := .exe
-    RM        := rm -rf
-    LINK_LIBS := -lmingw32 -lmingwex
-    SEP       := /
+	SUBDIR    := windows
+	EXEEXT    := .exe
 else
-    EXEEXT    :=
-    RM        := rm -rf
-    LINK_LIBS :=
-    SEP       := /
+	SUBDIR    := linux
+	EXEEXT    :=
 endif
 
-# Sources and objects
+SEP       := /
+OBJ_SUB   := $(OBJ_DIR)/$(SUBDIR)
+BIN       := $(OBJ_SUB)/app$(EXEEXT)
+
+# Sources and object files
 SRCS := $(wildcard $(SRC_DIR)/*.c)
-OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_SUB)/%.o, $(SRCS))
 
-# Final binary
-BIN := $(OBJ_DIR)/app$(EXEEXT)
-
-.PHONY: all clean run
+.PHONY: all clean reset run
 
 # Default target
 all: $(BIN)
 
-# Link
+# Link final binary
 $(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm $(LINK_LIBS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $^ -o $@ -lm
 
-# Compile objects
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	mkdir -p $(OBJ_DIR)
+# Compile each object file
+$(OBJ_SUB)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean
+# Clean only objects and binary for current OS
 clean:
-	$(RM) bin/*
+	rm -rf $(OBJ_SUB) $(BIN)
 
+# Reset entire build: binarios + preprocessed CSVs
 reset:
-	$(RM) data/*preprocessed.csv bin/*
+	rm -rf bin/*.dat data/*preprocessed.csv
 
-# Run with sample arguments
+# Run example
 run: clean all
 	@echo "Running with sample CSV and profile..."
 	$(BIN) tests$(SEP)test.csv profiles$(SEP)gravatai.json
