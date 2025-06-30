@@ -29,6 +29,16 @@ int file_exists(const char *filename) {
     return 0;
 }
 
+void remove_extension(char* filename) {
+    for (size_t i = 0; i < strlen(filename); i++) {
+        if (strcmp(&filename[i], ".csv") == 0 ||
+            strcmp(&filename[i], ".json") == 0 || strcmp(&filename[i], ".txt") == 0) {
+            filename[i] = '\0';
+            break;
+        }
+    }
+}
+
 // Cópia rápida usando syscalls (sendfile no Unix, CopyFileA no Windows)
 int copy_file_syscall(const char *src, const char *dst) {
 #ifdef _WIN32

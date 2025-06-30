@@ -72,9 +72,8 @@ void read_binary_file_and_print(const char* filename) {
             fprintf(stderr, "Warning: Maximum employee limit reached.\n");
             break;
         }
-        //print_public_employee(&e);
+        print_public_employee(&e);
     }
-
     plot_gaussian_terminal(data, count);
 
     fclose(fp);
@@ -83,7 +82,7 @@ void read_binary_file_and_print(const char* filename) {
 
 void parse_csv_line(char* line, char fields[MAX_FIELDS][MAX_FIELD_LEN]) {
     char* token = strtok(line, ";");
-    int idx = 0;
+    int idx = 0;    
 
     while (token != NULL && idx < MAX_FIELDS) {
         if (token[0] == '"') token[strlen(token) - 1] = '\0', token++;
@@ -196,20 +195,20 @@ int process_csv(const char* filename, const char* profile_path, const char* outp
 
     if(file_exists(output_path)) {
         puts("Output file already exists. Skipping creation...");
-        return 0;
+        return 1;
     }
 
     Profile* p = load_profile(profile_path);
     if (!p) {
         fprintf(stderr, "Error loading profile.\n");
-        return 1;
+        return 0;
     }
 
     FILE* fp = fopen(filename, "r");
     if (!fp) {
         fprintf(stderr, "Error opening CSV file.\n");
         free_profile(p);
-        return 1;
+        return 0;
     }
 
     char line[MAX_LINE];
@@ -224,7 +223,7 @@ int process_csv(const char* filename, const char* profile_path, const char* outp
         fprintf(stderr, "Header not found during file reading.\n");
         fclose(fp);
         free_profile(p);
-        return 1;
+        return 0;
     }
 
     // Mapeamento dinâmico
@@ -287,5 +286,5 @@ int process_csv(const char* filename, const char* profile_path, const char* outp
     free_profile(p);
 
     printf("CSV processed and saved to binary file: %s\n", output_path);
-    return 0;
+    return 1;
 }

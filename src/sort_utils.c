@@ -9,6 +9,7 @@
 #define BYTE_RANGE 256
 #define MAX_LENGTH_NAME 256
 
+
 static int compare_float_asc(const void* a, const void* b) {
     double diff = ((IndexEntry*)a)->key.float_key - ((IndexEntry*)b)->key.float_key;
     return (diff < 0) ? -1 : (diff > 0);

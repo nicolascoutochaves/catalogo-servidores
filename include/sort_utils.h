@@ -4,6 +4,9 @@
 #include <stddef.h>
 
 #define BYTE_RANGE 256
+#define INPUT_BUF 256
+
+typedef enum { KEY_INT, KEY_FLOAT, KEY_STR } KeyType;
 
 typedef union {
     int int_key;

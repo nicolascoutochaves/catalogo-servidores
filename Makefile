@@ -51,6 +51,8 @@ reset:
 run: clean all
 	@echo "Running with sample CSV and profile..."
 	$(BIN) tests$(SEP)test.csv profiles$(SEP)gravatai.json
+test:
+	$(BIN) tests$(SEP)test.csv profiles$(SEP)gravatai.json
 
 bench:
 	gcc -Wall -Iinclude src/search.c src/sort_utils.c src/public_employee.c main_with_index.c -o build/with_index -lm
