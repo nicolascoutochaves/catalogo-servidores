@@ -6,20 +6,6 @@
 #include "cJSON.h"
 #include "file_utils.h"
 
-/* #ifdef _WIN32
-    #include <windows.h>
-    #include <io.h>       // for _chsize_s, _fileno
-    #define ftruncate _chsize_s
-    #define fileno _fileno
-#else
-    #include <sys/sendfile.h>
-    #include <sys/stat.h>
-    #include <unistd.h>   // for ftruncate
-    #include <fcntl.h>    // for fileno
-#endif
-
-#define LINE_BUF 8192 */
-
 
 // Sanitiza linha: converte não-ASCII em '?' pulando bytes conforme encoding
 void sanitize_line(const char* src, char* dst, size_t maxlen, const char* encoding) {
@@ -46,7 +32,7 @@ void sanitize_line(const char* src, char* dst, size_t maxlen, const char* encodi
 }
 
 int preprocess(char* input_file, char* output_file, const char* encoding) {
-    // Gera nome de saída
+
     snprintf(output_file, MAX_FILENAME, "%s", input_file);
     for (int i = 0; i < MAX_FILENAME - 4; i++) {
         if (strncmp(output_file + i, ".csv", 4) == 0) {
@@ -61,13 +47,11 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
         return 1;
     }
 
-    // Copia rápida
     if (!copy_file_syscall(input_file, output_file)) {
         fprintf(stderr, "Error copying file.\n");
         return 0;
     }
 
-    // Abre para editar cabeçalho
     FILE* f = fopen(output_file, "r+b");
     if (!f) { perror("Error reopening file"); return 0; }
 
@@ -87,12 +71,10 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
         return 0;
     }
 
-    // Sanitiza e garante termina em nova linha
     char sanitized[LINE_BUF];
     sanitize_line(linha, sanitized, sizeof(sanitized), encoding);
     if (sanitized[strlen(sanitized)-1] != '\n') strcat(sanitized, "\n");
 
-    // Lê resto do arquivo em memória
     fseek(f, after_header_pos, SEEK_SET);
     fseek(f, 0, SEEK_END);
     long file_end = ftell(f);
@@ -102,7 +84,6 @@ int preprocess(char* input_file, char* output_file, const char* encoding) {
     fseek(f, after_header_pos, SEEK_SET);
     fread(tail, 1, tail_size, f);
 
-    // Sobrepoe cabeçalho + resto
     fseek(f, start_pos, SEEK_SET);
     fputs(sanitized, f);
     fwrite(tail, 1, tail_size, f);

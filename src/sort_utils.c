@@ -1,4 +1,3 @@
-// sort_utils.c
 #include "sort_utils.h"
 #include "public_employee.h"
 #include <stdio.h>
@@ -7,6 +6,8 @@
 #include <math.h>
 #include <float.h>
 #include "file_utils.h"
+#include "index.h"
+#include "search.h"
 
 #define BYTE_RANGE 256
 #define MAX_LENGTH_NAME 256
@@ -69,7 +70,6 @@ void sort_by_field(const char* field, int descending, const char* filename) {
         radix_sort_str(index, count, MAX_LENGTH_NAME, descending);
     }
 
-    // Apenas exibir os dados ordenados (sem salvar índice)
     fp = fopen(filename, "rb");
     if (!fp) { perror("fopen"); free(index); return; }
 
@@ -155,57 +155,67 @@ void radix_sort_str(IndexEntry* arr, size_t n, size_t maxlen, int descending) {
 void qsort_float(IndexEntry* arr, size_t n, int descending) {
     qsort(arr, n, sizeof(IndexEntry), descending ? compare_float_desc : compare_float_asc);
 }
-
-
-
-// Busca o maior valor de salario no arquivo binario
-void print_max_salary(const char *bin_filename) {
-    FILE *f = fopen(bin_filename, "rb");
-    if (!f) {
-        perror("fopen");
+void print_max_salary(const char* input_file, const char *bin_filename, const char *field) {
+    char idxfile[MAX_FILENAME];
+    get_index_filename((char*)input_file, field, idxfile);
+  
+    size_t count;
+    IndexEntry *idx = load_index(idxfile, &count);
+    if (!idx || count == 0) {
+        fprintf(stderr, "Não foi possível carregar índice '%s'\n", idxfile);
+        free(idx);
         return;
     }
-    double max_salary = -DBL_MAX;
-    PublicEmployee max_emp;
-    PublicEmployee temp;
 
-    while (fread(&temp, sizeof(PublicEmployee), 1, f) == 1) {
-        if (temp.net_salary > max_salary) {
-            max_salary = temp.net_salary;
-            max_emp = temp;
-        }
-        if (temp.gross_salary > max_salary) {
-            max_salary = temp.gross_salary;
-            max_emp = temp;
-        }
+    // o maior está no fim do índice ordenado crescente
+    long offset = idx[count - 1].offset;
+    free(idx);
+
+    // busca apenas esse registro no binário
+    FILE *f = fopen(bin_filename, "rb");
+    if (!f) { perror("fopen"); return; }
+    fseek(f, offset, SEEK_SET);
+
+    PublicEmployee e;
+    if (fread(&e, sizeof(e), 1, f) != 1) {
+        perror("fread");
+        fclose(f);
+        return;
     }
     fclose(f);
-    printf("Highest salary (net/gross): %.2f\n", max_salary);
-    print_public_employee(&max_emp);
+
+    printf("== Registro com maior %s ==\n", field);
+    print_public_employee(&e);
 }
 
-// Busca o menor valor de salario no arquivo binario
-void print_min_salary(const char *bin_filename) {
-    FILE *f = fopen(bin_filename, "rb");
-    if (!f) {
-        perror("fopen");
+void print_min_salary(const char* input_file, const char *bin_filename, const char *field) {
+    char idxfile[MAX_FILENAME];
+    get_index_filename((char*)input_file, field, idxfile);
+
+    size_t count;
+    IndexEntry *idx = load_index(idxfile, &count);
+    if (!idx || count == 0) {
+        fprintf(stderr, "Não foi possível carregar índice '%s'\n", idxfile);
+        free(idx);
         return;
     }
-    double min_salary = DBL_MAX;
-    PublicEmployee min_emp;
-    PublicEmployee temp;
 
-    while (fread(&temp, sizeof(PublicEmployee), 1, f) == 1) {
-        if (temp.net_salary < min_salary) {
-            min_salary = temp.net_salary;
-            min_emp = temp;
-        }
-        if (temp.gross_salary < min_salary) {
-            min_salary = temp.gross_salary;
-            min_emp = temp;
-        }
+    // o menor está na primeira posição
+    long offset = idx[0].offset;
+    free(idx);
+
+    FILE *f = fopen(bin_filename, "rb");
+    if (!f) { perror("fopen"); return; }
+    fseek(f, offset, SEEK_SET);
+
+    PublicEmployee e;
+    if (fread(&e, sizeof(e), 1, f) != 1) {
+        perror("fread");
+        fclose(f);
+        return;
     }
     fclose(f);
-    printf("Lowest salary (net/gross): %.2f\n", min_salary);
-    print_public_employee(&min_emp);
+
+    printf("== Registro com menor %s ==\n", field);
+    print_public_employee(&e);
 }

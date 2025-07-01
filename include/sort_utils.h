@@ -26,5 +26,6 @@ void radix_sort_str(IndexEntry *arr, size_t n, size_t maxlen, int descending);
 void radix_sort_str_desc(IndexEntry *arr, size_t n, size_t maxlen);
 
 void qsort_float(IndexEntry *arr, size_t n, int descending);
-
+void print_max_salary(const char *input_file, const char *bin_filename, const char *field);
+void print_min_salary(const char *input_file, const char *bin_filename, const char *field);
 #endif // SORT_UTILS_H

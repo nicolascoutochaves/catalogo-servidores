@@ -42,21 +42,3 @@ $(OBJ_SUB)/%.o: $(SRC_DIR)/%.c
 # Clean only objects and binary for current OS
 clean:
 	rm -rf $(OBJ_SUB) $(BIN)
-
-# Reset entire build: binaries + preprocessed CSVs
-reset:
-	rm -rf bin/*.dat data/*preprocessed.csv index/data/*.idx index/tests/*.idx
-
-# Run example
-run: clean all
-	@echo "Running with sample CSV and profile..."
-	$(BIN) tests$(SEP)test.csv profiles$(SEP)gravatai.json
-test:
-	$(BIN) tests$(SEP)test.csv profiles$(SEP)gravatai.json
-
-bench:
-	gcc -Wall -Iinclude src/search.c src/sort_utils.c src/public_employee.c main_with_index.c -o build/with_index -lm
-	gcc -Wall -Iinclude src/sort_utils.c src/public_employee.c main_without_index.c -o build/without_index -lm
-	./build/with_index
-	./build/without_index
-

@@ -89,6 +89,7 @@ void get_index_filename(char* filename, const char* field, char* index_filename)
     strcat(index_filename, "_");
     strcat(index_filename, field); // Adiciona o campo como sufixo
     strcat(index_filename, ".idx\0"); // Adiciona a extensão .idx
+    //agora index_filename contém o nome do arquivo de índice para ser aberto
 }
 
 int create_index(char* filename, const char* output_file) {

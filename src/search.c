@@ -52,7 +52,7 @@ void prompt_and_search(char* input_file, char* output_file, int* opt) {
     char line[INPUT_BUF];
     SortKey key;
     KeyType kind;
-    double eps = 0.1;  // padrão
+    double eps = 0.1;  // margem padrão
 
     printf("Searching in binary file \"%s\".\n", output_file);
     printf("Enter search key (ID, Name, or Salary) [optional eps]: ");
@@ -85,7 +85,7 @@ void prompt_and_search(char* input_file, char* output_file, int* opt) {
     kind = detect_type(term);
 
     if (kind == KEY_INT && eps_str) {
-        // Entrada era algo como: "5000 500" → forçamos interpretação como float
+        // Entrada era algo como: "5000 500" - força interpretação como float
         kind = KEY_FLOAT;
         key.float_key = atof(term);
         printf("→ Interpreted as float key: %.2f with eps = %.2f\n", key.float_key, eps);
@@ -238,7 +238,7 @@ int search_by_name(const char* bin_filename, const char* index_filename, const c
         return found;
     }
 
-    // Com curingas (*)
+    // wildcards:
     if (strchr(name, '*')) {
         const char* pattern = name;
         int prefix = 0, suffix = 0;
@@ -290,7 +290,6 @@ int search_by_name(const char* bin_filename, const char* index_filename, const c
 
         if (alloc) free(alloc);
     } else {
-        // Busca binária exata
         int pos = binary_search_name(index, count, name);
         if (pos >= 0) {
             int start = pos;
