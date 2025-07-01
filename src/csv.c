@@ -7,6 +7,7 @@
 #include "stats.h"
 #include "preprocess.h"
 #include "public_employee.h"
+#include "file_utils.h"
 
 static void convert_brazilian_number(char* input) {
     if (!strchr(input, ',')) return; // já está em formato internacional
@@ -63,21 +64,34 @@ void read_binary_file_and_print(const char* filename) {
         return;
     }
 
-    size_t count =  0;
+    size_t count = 0;
+    int page_count = 0;
 
     PublicEmployee e;
     while (fread(&e, sizeof(PublicEmployee), 1, fp) == 1) {
         data[count++] = e.net_salary;
+        print_public_employee(&e);
+        page_count++;
+
+        if (page_count == PAGE_SIZE) {
+            if (!ask_continue_pagination()) break;
+            page_count = 0;
+        }
+
         if (count >= MAX_EMPLOYEES) {
             fprintf(stderr, "Warning: Maximum employee limit reached.\n");
             break;
         }
-        print_public_employee(&e);
     }
-    plot_gaussian_terminal(data, count);
 
+    if (count > 0) {
+        plot_gaussian_terminal(data, count);
+    }
+
+    free(data);
     fclose(fp);
 }
+
 
 
 void parse_csv_line(char* line, char fields[MAX_FIELDS][MAX_FIELD_LEN]) {

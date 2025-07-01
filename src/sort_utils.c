@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <float.h>
+#include "file_utils.h"
 
 #define BYTE_RANGE 256
 #define MAX_LENGTH_NAME 256
@@ -20,7 +22,7 @@ static int compare_float_desc(const void* a, const void* b) {
     return (diff < 0) ? -1 : (diff > 0);
 }
 
-void sort_by_field(const char* field, int descending, const char* filename, const char* index_filename) {
+void sort_by_field(const char* field, int descending, const char* filename) {
     if (!field || !filename) {
         fprintf(stderr, "Invalid field or filename.\n");
         return;
@@ -35,7 +37,6 @@ void sort_by_field(const char* field, int descending, const char* filename, cons
     rewind(fp);
 
     IndexEntry* index = calloc(count, sizeof(IndexEntry));
-    
     if (!index) { perror("malloc"); fclose(fp); return; }
 
     for (size_t i = 0; i < count; i++) {
@@ -58,38 +59,40 @@ void sort_by_field(const char* field, int descending, const char* filename, cons
 
     if (strcmp(field, "id") == 0) {
         if (descending) radix_sort_int_desc(index, count);
-        else           radix_sort_int(index, count);
+        else            radix_sort_int(index, count);
     }
     else if (!strcmp(field, "net_salary") || !strcmp(field, "gross_salary")) {
         qsort(index, count, sizeof(IndexEntry),
-            descending ? compare_float_desc : compare_float_asc);
+              descending ? compare_float_desc : compare_float_asc);
     }
     else if (!strcmp(field, "name")) {
         radix_sort_str(index, count, MAX_LENGTH_NAME, descending);
     }
 
-    if (index_filename) {
-        FILE* out = fopen(index_filename, "wb");
-        if (!out) perror("fopen index");
-        else {
-            fwrite(index, sizeof(IndexEntry), count, out);
-            fclose(out);
-            printf("Index saved: %s\n", index_filename);
+    // Apenas exibir os dados ordenados (sem salvar índice)
+    fp = fopen(filename, "rb");
+    if (!fp) { perror("fopen"); free(index); return; }
+
+    int printed = 0;
+    for (size_t i = 0; i < count; i++) {
+        fseek(fp, index[i].offset, SEEK_SET);
+        PublicEmployee e;
+        fread(&e, sizeof(e), 1, fp);
+        print_public_employee(&e);
+
+        printed++;
+        if (printed == PAGE_SIZE) {
+            if(!ask_continue_pagination()) {
+                break;
+            }
+            printed = 0;
         }
     }
-    else {
-        fp = fopen(filename, "rb");
-        if (!fp) { perror("fopen"); free(index); return; }
-        for (size_t i = 0; i < count; i++) {
-            fseek(fp, index[i].offset, SEEK_SET);
-            PublicEmployee e;
-            fread(&e, sizeof(e), 1, fp);
-            print_public_employee(&e);
-        }
-        fclose(fp);
-    }
+
+    fclose(fp);
     free(index);
 }
+
 
 void radix_sort_int(IndexEntry* arr, size_t n) {
     IndexEntry* output = malloc(n * sizeof(IndexEntry));
@@ -151,4 +154,58 @@ void radix_sort_str(IndexEntry* arr, size_t n, size_t maxlen, int descending) {
 
 void qsort_float(IndexEntry* arr, size_t n, int descending) {
     qsort(arr, n, sizeof(IndexEntry), descending ? compare_float_desc : compare_float_asc);
+}
+
+
+
+// Busca o maior valor de salario no arquivo binario
+void print_max_salary(const char *bin_filename) {
+    FILE *f = fopen(bin_filename, "rb");
+    if (!f) {
+        perror("fopen");
+        return;
+    }
+    double max_salary = -DBL_MAX;
+    PublicEmployee max_emp;
+    PublicEmployee temp;
+
+    while (fread(&temp, sizeof(PublicEmployee), 1, f) == 1) {
+        if (temp.net_salary > max_salary) {
+            max_salary = temp.net_salary;
+            max_emp = temp;
+        }
+        if (temp.gross_salary > max_salary) {
+            max_salary = temp.gross_salary;
+            max_emp = temp;
+        }
+    }
+    fclose(f);
+    printf("Highest salary (net/gross): %.2f\n", max_salary);
+    print_public_employee(&max_emp);
+}
+
+// Busca o menor valor de salario no arquivo binario
+void print_min_salary(const char *bin_filename) {
+    FILE *f = fopen(bin_filename, "rb");
+    if (!f) {
+        perror("fopen");
+        return;
+    }
+    double min_salary = DBL_MAX;
+    PublicEmployee min_emp;
+    PublicEmployee temp;
+
+    while (fread(&temp, sizeof(PublicEmployee), 1, f) == 1) {
+        if (temp.net_salary < min_salary) {
+            min_salary = temp.net_salary;
+            min_emp = temp;
+        }
+        if (temp.gross_salary < min_salary) {
+            min_salary = temp.gross_salary;
+            min_emp = temp;
+        }
+    }
+    fclose(f);
+    printf("Lowest salary (net/gross): %.2f\n", min_salary);
+    print_public_employee(&min_emp);
 }

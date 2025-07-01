@@ -19,7 +19,7 @@ typedef struct {
     long offset;
 } IndexEntry;
 
-void sort_by_field(const char *field, int descending, const char* filename, const char *index_filename);
+void sort_by_field(const char *field, int descending, const char* filename);
 void radix_sort_int(IndexEntry *arr, size_t n);
 void radix_sort_int_desc(IndexEntry *arr, size_t n);
 void radix_sort_str(IndexEntry *arr, size_t n, size_t maxlen, int descending);
