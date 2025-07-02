@@ -1,0 +1,2 @@
+//This is the suggested direcoty for put the processed binary files.
+//Don't remove this, or the program can not work in the default mode (not providing a path to store the binary file)
