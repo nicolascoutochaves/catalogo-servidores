@@ -23,11 +23,13 @@ typedef struct {
     double x;
 } Gaussian;
 
+void read_binary_file_and_print(const char* filename);
 void calculate_stats(double *data, int size, Stats *stats);
 void print_stats(const Stats *stats);
 void set_gaussian_parameters(Gaussian *g, const Stats *stats);
 double calculate_gaussian(const Gaussian *g);
 void plot_gaussian_terminal(double *data, int size);
+void data_analisys_by_class(char *field, char *data_searching, char *input_file, char *output_file);
 
 double p_less(const Gaussian *g, double x);
 double p_more(const Gaussian *g, double x);

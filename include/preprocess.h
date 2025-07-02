@@ -6,5 +6,6 @@
 
 int file_exists(const char *filename);
 int preprocess(char *input_file, char *output_file, const char *encoding);
+void remove_extension(char*);
 
 #endif // PREPROCESS_H

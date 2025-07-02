@@ -6,8 +6,13 @@
 #include "public_employee.h"
 
 
-void build_index(const char *field, const char* bin_filename, const char *index_filename, int descending);
+int build_index(const char *field, const char* bin_filename, const char *index_filename, int descending);
 
+void get_index_filename(char* filename, const char* field, char* index_filename); //get index filename based on field and input file
+
+int create_index(char* filename, const char* output_file); //create index for the given file and output file
+
+IndexEntry *load_index(const char *index_filename, size_t *out_count);
 
 double get_maximum(const char *field); //get maximum value of a field (net_salary, gross_salary, etc.)
 
