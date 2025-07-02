@@ -24,7 +24,7 @@ BIN       := $(OBJ_SUB)/app$(EXEEXT)
 SRCS := $(wildcard $(SRC_DIR)/*.c)
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_SUB)/%.o, $(SRCS))
 
-.PHONY: all clean reset run
+.PHONY: all
 
 # Default target
 all: $(BIN)

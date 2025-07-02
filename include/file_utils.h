@@ -21,7 +21,7 @@
 #define LINE_BUF 8192 
 
 #define MAX_FILENAME 256
-#define PAGE_SIZE 5
+#define PAGE_SIZE 3
 
 
 int file_exists(const char *filename);

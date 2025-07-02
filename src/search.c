@@ -184,7 +184,7 @@ int search_by_id(const char* bin_filename, const char* index_filename, int id) {
     return 1;
 }
 
-static int binary_search_name(IndexEntry* arr, size_t count, const char* name) {
+int binary_search_name(IndexEntry* arr, size_t count, const char* name) {
     size_t left = 0, right = count;
     while (left < right) {
         size_t mid = left + (right - left) / 2;

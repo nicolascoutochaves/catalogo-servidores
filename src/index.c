@@ -48,6 +48,17 @@ int build_index(const char *field,
         else if (strcmp(field, "name") == 0) {
             strncpy(index[i].key.str_key, e.name, sizeof(index[i].key.str_key));
             index[i].key.str_key[sizeof(index[i].key.str_key) - 1] = '\0';
+        } else if (strcmp(field, "department") == 0) {
+            strncpy(index[i].key.str_key, e.department, sizeof(index[i].key.str_key));
+            index[i].key.str_key[sizeof(index[i].key.str_key) - 1] = '\0';
+        } else if (strcmp(field, "position") == 0) {
+            strncpy(index[i].key.str_key, e.position, sizeof(index[i].key.str_key));
+            index[i].key.str_key[sizeof(index[i].key.str_key) - 1] = '\0';
+        } else {
+            fprintf(stderr, "Unknown field: %s\n", field);
+            free(index);
+            fclose(fp);
+            return 0;
         }
     }
 
@@ -61,7 +72,7 @@ int build_index(const char *field,
     else if (!strcmp(field, "net_salary") || !strcmp(field, "gross_salary")) {
         qsort_float(index, count, descending);
     }
-    else if (!strcmp(field, "name")) {
+    else if (!strcmp(field, "name") || !strcmp(field, "department") || !strcmp(field, "position")) {
         radix_sort_str(index, count, 256, descending);
     }
 
@@ -98,17 +109,23 @@ int create_index(char* filename, const char* output_file) {
     char *name = malloc(MAX_FILENAME);
     char *gross = malloc(MAX_FILENAME);
     char *net = malloc(MAX_FILENAME);
+    char *department = malloc(MAX_FILENAME);
+    char *position = malloc(MAX_FILENAME);
 
     get_index_filename(filename, "id", id);
     get_index_filename(filename, "name", name);
     get_index_filename(filename, "gross_salary", gross);
     get_index_filename(filename, "net_salary", net);
+    get_index_filename(filename, "department", department);
+    get_index_filename(filename, "position", position);
 
     puts("Building indices...");
 
     return (build_index("id", output_file, id, 0) &&
         build_index("name", output_file, name, 0) &&
         build_index("gross_salary", output_file, gross, 0) &&
-        build_index("net_salary", output_file, net, 0));
+        build_index("net_salary", output_file, net, 0)) &&
+        build_index("department", output_file, department, 0) &&
+        build_index("position", output_file, position, 0);
 
 }
