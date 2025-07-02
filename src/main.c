@@ -40,7 +40,7 @@ enum {
 
 
 struct timespec total_start, total_end;
-struct timespec t1, t2;
+
 
 int select_program(int opt, char* input_file, char* profile_path, char* output_file, char* encoding);
 double elapsed_ms(struct timespec start, struct timespec end);
@@ -187,7 +187,6 @@ int select_program(int opt, char* input_file, char* profile_path, char* output_f
             fprintf(stderr, "❌ Binary file does not exist. Please process CSV first.\n");
             return OPTION_LOOP;
         }
-        while (getchar() != '\n'); // limpa buffer de entrada
         while (opt != -1) {
             prompt_and_search(input_file, output_file, &opt);
         }
@@ -385,10 +384,4 @@ int is_valid_encoding(char* encoding) {
     }
 
     return (!strcmp(encoding, "UTF-8") || !strcmp(encoding, "ISO-8859-1"));
-}
-
-// função utilitária
-double elapsed_ms(struct timespec start, struct timespec end) {
-    return (end.tv_sec - start.tv_sec) * 1000.0 +
-        (end.tv_nsec - start.tv_nsec) / 1e6;
 }

@@ -23,6 +23,9 @@ typedef struct {
     double x;
 } Gaussian;
 
+extern struct timespec t1, t2; // Global time variables for measuring elapsed time
+
+double elapsed_ms(struct timespec start, struct timespec end);
 void read_binary_file_and_print(const char* filename);
 void calculate_stats(double *data, int size, Stats *stats);
 void print_stats(const Stats *stats);

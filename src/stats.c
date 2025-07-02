@@ -2,7 +2,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <ctype.h>
+#include <time.h>
 #include "stats.h"
 #include "sort_utils.h"
 #include "index.h"
@@ -10,10 +11,19 @@
 #include "public_employee.h"
 #include "search.h"
 
+struct timespec t1 = {0}, t2 = {0};
+
 const GaussianRange ranges[] = {
     {"30%", 0.39}, {"50%", 0.67}, {"80%", 1.28}, {"90%", 1.64}, {"95%", 1.96}
 };
 const int range_count = sizeof(ranges) / sizeof(ranges[0]);
+
+// função utilitária
+double elapsed_ms(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) * 1000.0 +
+        (end.tv_nsec - start.tv_nsec) / 1e6;
+}
+
 
 void calculate_stats(double* data, int size, Stats* stats) {
     double sum = 0.0, sq = 0.0;
@@ -129,7 +139,10 @@ void data_analisys_by_class(char* field, char* data_searching, char* input_file,
         return;
     }
 
+    struct timespec t1, t2;
+
     if (strchr(name, '*')) {
+        clock_gettime(CLOCK_MONOTONIC, &t1);
         const char* pattern = name;
         int prefix = 0, suffix = 0;
         char* alloc = NULL;
@@ -188,6 +201,7 @@ void data_analisys_by_class(char* field, char* data_searching, char* input_file,
         if (alloc) free(alloc);
     }
     else {
+        clock_gettime(CLOCK_MONOTONIC, &t1);
         int pos = binary_search_name(idx, count, data_searching);
         start = pos;
         if (pos >= 0) {
@@ -213,10 +227,11 @@ void data_analisys_by_class(char* field, char* data_searching, char* input_file,
         return;
     }
 
-
-
+    clock_gettime(CLOCK_MONOTONIC, &t2);
+    
     printf("\n\nData analysis completed for field '%s' with value '%s'.\n\n", field, data_searching);
 
+    printf("Time taken: %.2f ms\n", elapsed_ms(t1, t2));
 
     int printed = 0;
     printf("Do you want to print the employees found? ");
@@ -236,7 +251,7 @@ void data_analisys_by_class(char* field, char* data_searching, char* input_file,
         fclose(fp);
         free(idx);
         free(e);
-        printf("Total entries found: %d\n", found);
+        printf("\n>>>>>> Total entries found: %d <<<<<<\n\n\n", found);
 
     }
 
